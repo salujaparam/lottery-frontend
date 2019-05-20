@@ -33,7 +33,10 @@ class App extends Component {
       value: web3.utils.toWei(this.state.value, "ether")
     });
 
-    this.setState({ message: "You have been entered!" });
+    const players = await lottery.methods.getPlayers().call();
+    const balance = await web3.eth.getBalance(lottery.options.address);
+
+    this.setState({ message: "You have been entered!", players, balance });
   };
 
   onClick = async () => {
@@ -45,7 +48,10 @@ class App extends Component {
       from: accounts[0]
     });
 
-    this.setState({ message: "A winner has been picked!" });
+    const players = await lottery.methods.getPlayers().call();
+    const balance = await web3.eth.getBalance(lottery.options.address);
+
+    this.setState({ message: "A winner has been picked!", players, balance });
   };
 
   render() {
