@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import web3 from "./web3";
 import lottery from "./lottery";
@@ -10,7 +9,8 @@ class App extends Component {
     players: [],
     balance: "",
     value: "",
-    message: ""
+    message: "",
+    error: ""
   };
 
   async componentDidMount() {
@@ -24,34 +24,46 @@ class App extends Component {
   onSubmit = async event => {
     event.preventDefault();
 
-    const accounts = await web3.eth.getAccounts();
+    try {
+      const accounts = await web3.eth.getAccounts();
 
-    this.setState({ message: "Waiting on transaction success..." });
+      this.setState({ message: "Waiting on transaction success..." });
 
-    await lottery.methods.enter().send({
-      from: accounts[0],
-      value: web3.utils.toWei(this.state.value, "ether")
-    });
+      await lottery.methods.enter().send({
+        from: accounts[0],
+        value: web3.utils.toWei(this.state.value, "ether")
+      });
 
-    const players = await lottery.methods.getPlayers().call();
-    const balance = await web3.eth.getBalance(lottery.options.address);
+      const players = await lottery.methods.getPlayers().call();
+      const balance = await web3.eth.getBalance(lottery.options.address);
 
-    this.setState({ message: "You have been entered!", players, balance });
+      this.setState({ message: "You have been entered!", players, balance });
+    } catch (error) {
+      this.setState({ error: error.message, message: "" });
+    }
   };
 
   onClick = async () => {
-    const accounts = await web3.eth.getAccounts();
+    try {
+      const accounts = await web3.eth.getAccounts();
 
-    this.setState({ message: "Waiting on transaction success..." });
+      this.setState({ message: "Waiting on transaction success..." });
 
-    await lottery.methods.pickWinner().send({
-      from: accounts[0]
-    });
+      await lottery.methods.pickWinner().send({
+        from: accounts[0]
+      });
 
-    const players = await lottery.methods.getPlayers().call();
-    const balance = await web3.eth.getBalance(lottery.options.address);
+      const players = await lottery.methods.getPlayers().call();
+      const balance = await web3.eth.getBalance(lottery.options.address);
 
-    this.setState({ message: "A winner has been picked!", players, balance });
+      this.setState({ message: "A winner has been picked!", players, balance });
+    } catch (error) {
+      this.setState({ error: error.message, message: "" });
+    }
+  };
+
+  onChange = event => {
+    this.setState({ value: event.target.value, error: "", message: "" });
   };
 
   render() {
@@ -69,10 +81,7 @@ class App extends Component {
           <h4>Want to try your luck?</h4>
           <div>
             <label>Amount of ether to enter</label>
-            <input
-              value={this.state.value}
-              onChange={event => this.setState({ value: event.target.value })}
-            />
+            <input value={this.state.value} onChange={this.onChange} />
           </div>
           <button>Enter</button>
         </form>
@@ -85,6 +94,7 @@ class App extends Component {
         <hr />
 
         <h1>{this.state.message}</h1>
+        <h1>{this.state.error}</h1>
       </div>
     );
   }
