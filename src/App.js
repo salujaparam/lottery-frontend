@@ -81,7 +81,11 @@ class App extends Component {
           <h4>Want to try your luck?</h4>
           <div>
             <label>Amount of ether to enter</label>
-            <input value={this.state.value} onChange={this.onChange} />
+            <input
+              placeholder="       > than 0.1 ethereum"
+              value={this.state.value}
+              onChange={this.onChange}
+            />
           </div>
           <button>Enter</button>
         </form>
